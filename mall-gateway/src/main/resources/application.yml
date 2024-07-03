@@ -1,0 +1,72 @@
+server:
+  port: 8000
+  
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka
+  instance: 
+           # 服务过期时间配置,超过这个时间没有接收到心跳EurekaServer就会将这个实例剔除
+    lease-expiration-duration-in-seconds: 3
+    lease-renewal-interval-in-seconds: 1
+
+spring:
+  application: 
+    name: gateway
+  cloud:
+    # Spring Cloud Gateway 配置项，对应 GatewayProperties 类
+    gateway:
+      # 路由配置项，对应 RouteDefinition 数组
+      routes:
+        - id: user # 路由的编号
+          uri: http://localhost:8001 # 路由到的目标地址 lb://user
+          predicates: # 断言，作为路由的匹配条件，对应 RouteDefinition 数组
+            - Path=/user/**
+          filters:
+            - StripPrefix=1
+        - id: merchant # 路由的编号
+          uri: http://localhost:8002 # 路由的目标地址
+          predicates: # 断言，作为路由的匹配条件，对应 RouteDefinition 数组
+            - Path=/merchant/**
+          filters: # 过滤器，对请求进行拦截，实现自定义的功能，对应 FilterDefinition 数组
+            - StripPrefix=1
+        - id: commodity # 路由的编号
+          uri: http://localhost:8003 # 路由的目标地址
+          predicates: # 断言，作为路由的匹配条件，对应 RouteDefinition 数组
+            - Path=/commodity/**
+          filters: # 过滤器，对请求进行拦截，实现自定义的功能，对应 FilterDefinition 数组
+            - StripPrefix=1
+        - id: order # 路由的编号
+          uri: http://localhost:8004 # 路由的目标地址
+          predicates: # 断言，作为路由的匹配条件，对应 RouteDefinition 数组
+            - Path=/order/**
+          filters: # 过滤器，对请求进行拦截，实现自定义的功能，对应 FilterDefinition 数组
+            - StripPrefix=1
+        - id: pay # 路由的编号
+          uri: http://localhost:8005 # 路由的目标地址
+          predicates: # 断言，作为路由的匹配条件，对应 RouteDefinition 数组
+            - Path=/pay/**
+          filters: # 过滤器，对请求进行拦截，实现自定义的功能，对应 FilterDefinition 数组
+            - StripPrefix=1
+  # redis配置
+  redis:
+    port: 6379
+    host: 127.0.0.1
+    database: 0 # 设置存入redis的哪一个库（默认是0）
+    lettuce: 
+      pool: 
+                      # 最大阻塞等待时间，负数表示没有限制
+        max-wait: -1
+                     # 连接池中的最大空闲连接
+        max-idle: 5
+                      # 连接池中的最小空闲连接
+        min-idle: 0
+                      # 连接池中最大连接数，负数表示没有限制
+        max-active: 20
+        
+sess:
+  time-out: 60
+
+url:
+  no-need-chk-login: /user/user/login,/user/user/register
+  no-need-chk-session: /user/user/login,/user/user/register
